@@ -1,0 +1,110 @@
+# Agent Memory Structure
+
+This repository uses a structured set of files in the `/agent` directory to maintain project state and serve as the agent's memory.
+
+## Overview
+
+The agent memory system consists of files that are **living documents** - they reflect the current state of the project, not a historical record. These files should be updated after every significant change to keep them current.
+
+## File Structure
+
+### `/agent/architecture.md`
+**Purpose**: Technical design of the MCP server
+
+**Contains**:
+- High-level system architecture
+- Component design and interactions
+- Technology choices and patterns
+- API structure and data flows
+
+**When to update**: When making architectural changes or adding new components
+
+---
+
+### `/agent/goals.md`
+**Purpose**: Project description and objectives
+
+**Contains**:
+- Project overview and purpose
+- Current objectives and milestones
+- Scope definition (what's in/out of scope)
+- Success criteria
+
+**When to update**: When objectives change or milestones are reached
+
+---
+
+### `/agent/features.md`
+**Purpose**: Current state of features and capabilities
+
+**Contains**:
+- Implemented features (grouped by area)
+- Known bugs and limitations
+- Recent bug fixes
+- Current capabilities overview
+
+**When to update**: After implementing features or fixing bugs
+
+---
+
+### `/agent/decisions.md`
+**Purpose**: Implementation decisions and their rationale
+
+**Contains**:
+- Key implementation choices
+- Trade-offs considered
+- Rationale for decisions
+- Alternatives that were considered
+- Cross-references to related files
+
+**When to update**: When making significant implementation decisions
+
+**Scope**: Lower-level decisions; architecture.md covers high-level design decisions
+
+---
+
+### `/agent/journal.md`
+**Purpose**: Lessons learned and development insights
+
+**Contains**:
+- Things learned during development
+- Gotchas and edge cases discovered
+- Tips for future work
+- Context about why certain approaches work/don't work
+
+**When to update**: When discovering insights worth remembering
+
+**Scope**: Practical learnings; decisions.md covers formal decision rationale
+
+---
+
+### `README.md`
+**Purpose**: project description for users and contributors
+**Contains**:
+- Project overview
+- Installation instructions
+- Usage guidelines
+- Project structure summary
+
+**When to update**: When project details, instructions, or structure changes
+---
+
+## Cross-References
+
+Files should reference each other to minimize duplication:
+- Use `See architecture.md` when referencing design details
+- Use `See decisions.md` when referencing implementation choices
+- Use `See goals.md` when referencing project objectives
+- Use `See journal.md` when referencing lessons learned
+
+## Maintenance Guidelines
+
+1. **Update after every change**: Keep files current, don't let them become stale
+2. **No timestamps needed**: These are living documents showing current state
+3. **Avoid duplication**: Use cross-references between files
+4. **Keep concise**: Focus on what's important to remember
+5. **Current state focus**: Don't maintain history; show the present state
+
+## Project Context
+
+This is a **PingFederate MCP (Model Context Protocol) server** project. The MCP server is intended for use in other projects. PingFederate configurations are only tracked for testing purposes within this repository.

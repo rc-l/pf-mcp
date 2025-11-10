@@ -1,0 +1,394 @@
+openapi: 3.0.3
+info:
+  title: PingFederate Administrative API
+  description: |
+    OpenAPI specification for PingFederate Administrative API.
+    This specification drives the MCP server implementation.
+  version: 11.3.0
+  contact:
+    name: PingFederate Support
+    url: https://docs.pingidentity.com/pingfederate
+  license:
+    name: Proprietary
+    url: https://www.pingidentity.com/legal
+
+servers:
+  - url: https://{host}:{port}/pf-admin-api/v1
+    description: PingFederate Admin API
+    variables:
+      host:
+        default: localhost
+        description: PingFederate host
+      port:
+        default: "9999"
+        description: Admin API port
+
+security:
+  - basicAuth: []
+
+tags:
+  - name: OAuth Clients
+    description: OAuth 2.0 client management
+  - name: Identity Provider
+    description: Identity provider configuration
+  - name: Service Provider
+    description: Service provider configuration
+  - name: Users
+    description: User management
+  - name: System
+    description: System configuration
+
+paths:
+  /version:
+    get:
+      tags:
+        - System
+      summary: Get PingFederate version
+      description: Returns the version of the PingFederate server
+      operationId: getVersion
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+
+  /oauth/clients:
+    get:
+      tags:
+        - OAuth Clients
+      summary: List OAuth clients
+      description: Get a list of all OAuth 2.0 clients
+      operationId: listOAuthClients
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: numberPerPage
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClientList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      tags:
+        - OAuth Clients
+      summary: Create OAuth client
+      description: Create a new OAuth 2.0 client
+      operationId: createOAuthClient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuthClient'
+      responses:
+        '201':
+          description: Client created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClient'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /oauth/clients/{clientId}:
+    parameters:
+      - name: clientId
+        in: path
+        required: true
+        description: OAuth client ID
+        schema:
+          type: string
+          
+    get:
+      tags:
+        - OAuth Clients
+      summary: Get OAuth client
+      description: Get details of a specific OAuth 2.0 client
+      operationId: getOAuthClient
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClient'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    put:
+      tags:
+        - OAuth Clients
+      summary: Update OAuth client
+      description: Update an existing OAuth 2.0 client
+      operationId: updateOAuthClient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuthClient'
+      responses:
+        '200':
+          description: Client updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClient'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    delete:
+      tags:
+        - OAuth Clients
+      summary: Delete OAuth client
+      description: Delete an OAuth 2.0 client
+      operationId: deleteOAuthClient
+      responses:
+        '204':
+          description: Client deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /idp/adapters:
+    get:
+      tags:
+        - Identity Provider
+      summary: List IDP adapters
+      description: Get a list of all identity provider adapters
+      operationId: listIdpAdapters
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdpAdapterList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: Basic authentication with administrator credentials
+
+  schemas:
+    Version:
+      type: object
+      required:
+        - version
+      properties:
+        version:
+          type: string
+          description: PingFederate version
+          example: "11.3.0"
+
+    OAuthClient:
+      type: object
+      required:
+        - clientId
+        - name
+      properties:
+        clientId:
+          type: string
+          description: Unique client identifier
+          example: "my-oauth-client"
+        name:
+          type: string
+          description: Client name
+          example: "My OAuth Client"
+        description:
+          type: string
+          description: Client description
+          example: "OAuth client for my application"
+        enabled:
+          type: boolean
+          description: Whether the client is enabled
+          default: true
+        grantTypes:
+          type: array
+          description: Allowed grant types
+          items:
+            type: string
+            enum:
+              - authorization_code
+              - implicit
+              - resource_owner_credentials
+              - client_credentials
+              - refresh_token
+          example: ["authorization_code", "refresh_token"]
+        redirectUris:
+          type: array
+          description: Allowed redirect URIs
+          items:
+            type: string
+          example: ["https://app.example.com/callback"]
+        clientAuth:
+          type: object
+          description: Client authentication configuration
+          properties:
+            type:
+              type: string
+              enum: ["SECRET", "CERTIFICATE", "NONE"]
+              default: "SECRET"
+            secret:
+              type: string
+              description: Client secret (for SECRET type)
+              format: password
+              writeOnly: true
+        defaultAccessTokenManagerRef:
+          $ref: '#/components/schemas/ResourceLink'
+
+    OAuthClientList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OAuthClient'
+
+    IdpAdapter:
+      type: object
+      required:
+        - id
+        - name
+        - pluginDescriptorRef
+      properties:
+        id:
+          type: string
+          description: IDP adapter ID
+        name:
+          type: string
+          description: IDP adapter name
+        pluginDescriptorRef:
+          $ref: '#/components/schemas/ResourceLink'
+        configuration:
+          type: object
+          additionalProperties: true
+
+    IdpAdapterList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdpAdapter'
+
+    ResourceLink:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: Resource ID
+        location:
+          type: string
+          description: Resource location URL
+          format: uri
+
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        validationErrors:
+          type: array
+          description: Validation error details
+          items:
+            $ref: '#/components/schemas/ValidationError'
+
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized - invalid credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
